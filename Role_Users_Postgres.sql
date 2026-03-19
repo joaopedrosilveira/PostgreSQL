@@ -1,31 +1,45 @@
--- Criando a role
-CREATE ROLE RL_READ_ONLY;
+---------------------------------------------
+-- ROLE DE LEITURA
+---------------------------------------------
+CREATE ROLE RL_Read
 
--- Atribuindo as permissões as roles 
+--Aplicando as permissões de leitura
+GRANT CONNECT ON DATABASE zabbix TO RL_Read;
+GRANT USAGE ON SCHEMA public TO RL_Read;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO RL_Read;
 
--- Schema public e soamb
-GRANT USAGE ON SCHEMA public TO RL_READ_ONLY;
-
-GRANT USAGE ON SCHEMA soamb TO RL_READ_ONLY;
-
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO RL_READ_ONLY;
-
-GRANT SELECT ON ALL TABLES IN SCHEMA soamb TO RL_READ_ONLY;
-
+--Aplicando a garantia da permissão em tabelas futuras
 ALTER DEFAULT PRIVILEGES IN SCHEMA public
-GRANT SELECT ON TABLES TO RL_READ_ONLY;
+GRANT SELECT ON TABLES TO RL_Read;
 
-ALTER DEFAULT PRIVILEGES IN SCHEMA soamb
-GRANT SELECT ON TABLES TO RL_READ_ONLY;
+--Aplicando a role em um usuário
+GRANT rl_read to dba_karol
 
---Criando o usuário
-CREATE ROLE "nome_usuario" LOGIN PASSWORD 'senha';
+--------------------------------------------
+--ROLE DE ESCRITA
+--------------------------------------------
+CREATE ROLE RL_Write
 
--- Atribuindo a role ao usuário
-GRANT RL_READ_ONLY TO "nome_usuario";
+--Aplicando as permissões de escrita
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO RL_Write
 
---Criando o usuário
-CREATE ROLE "nome_usuario" LOGIN PASSWORD 'senha';
+--Aplicando a garantia de permissão em tabelas futuras
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO RL_Write
 
--- Atribuindo a role ao usuário
-GRANT rds_superuser TO DBA_ANIAT
+--------------------------------------------
+--ROLE ADMIN (Não super user)
+--------------------------------------------
+--Criando a role ADMIN
+CREATE ROLE rl_admin
+
+-- Acesso ao banco
+GRANT CONNECT ON DATABASE zabbix TO rl_admin;
+
+-- Acesso ao schema
+GRANT USAGE, CREATE ON SCHEMA public TO rl_admin;
+
+-- Permissões adicionais de criar objetos e criar roles
+ALTER ROLE rl_admin CREATEDB;
+
+ALTER ROLE rl_admin CREATEROLE;
